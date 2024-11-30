@@ -13,13 +13,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Project } from "@/types/project";
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { projects, deleteProject } = useProjects();
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+
+  console.log('Dashboard rendering with projects:', projects);
+
+  useEffect(() => {
+    console.log('Projects updated in Dashboard:', projects);
+  }, [projects]);
 
   const handleEdit = (project: Project) => {
     navigate(`/edit-project/${project.id}`);

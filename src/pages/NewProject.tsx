@@ -14,22 +14,29 @@ import { Input } from "@/components/ui/input";
 import { Pencil } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { toast } from 'sonner';
+import { Project } from '@/types/project';
 
-export function NewProject() {
+interface NewProjectProps {
+  mode?: 'create' | 'edit';
+  initialProject?: Project;
+  onSave?: (project: Project) => void;
+}
+
+export function NewProject({ mode = 'create', initialProject, onSave }: NewProjectProps) {
   const navigate = useNavigate();
   const { saveProject } = useProjects();
   const [projectDetails, setProjectDetails] = useState({
-    name: "",
-    location: "",
-    erfNumber: "",
-    propertyExtent: 0,
-    zoning: "",
-    zoningFactor: 0,
-    bulkArea: 0,
-    baseBuildCost: 0
+    name: initialProject?.name || "",
+    location: initialProject?.location || "",
+    erfNumber: initialProject?.erfNumber || "",
+    propertyExtent: initialProject?.propertyExtent || 0,
+    zoning: initialProject?.zoning || "",
+    zoningFactor: initialProject?.zoningFactor || 0,
+    bulkArea: initialProject?.bulkArea || 0,
+    baseBuildCost: initialProject?.baseBuildCost || 0
   });
 
-  const [isEditingName, setIsEditingName] = useState(true);
+  const [isEditingName, setIsEditingName] = useState(!initialProject?.name);
 
   const handleChange = (field: keyof typeof projectDetails) => (
     e: React.ChangeEvent<HTMLInputElement>
@@ -78,9 +85,16 @@ export function NewProject() {
         baseBuildCost: Number(projectDetails.baseBuildCost) || 0,
       };
 
-      saveProject(validatedProject);
-      toast.success('Project saved successfully');
-      navigate('/');
+      if (mode === 'edit' && initialProject && onSave) {
+        onSave({
+          ...initialProject,
+          ...validatedProject,
+        });
+      } else {
+        saveProject(validatedProject);
+        toast.success('Project saved successfully');
+        navigate('/');
+      }
     } catch (error) {
       console.error('Save error:', error);
       toast.error('Failed to save project');
@@ -95,6 +109,8 @@ export function NewProject() {
             <form onSubmit={handleNameSubmit} className="space-y-2">
               <Input
                 type="text"
+                id="project-name"
+                name="project-name"
                 value={projectDetails.name}
                 onChange={handleChange("name")}
                 placeholder="Enter project name"

@@ -37,6 +37,7 @@ export function useProjects() {
   const [projects, setProjects] = useState<Project[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
+      console.log('Loading projects from localStorage:', stored);
       if (!stored) return demoProjects;
       return JSON.parse(stored);
     } catch (error) {
@@ -47,6 +48,7 @@ export function useProjects() {
 
   useEffect(() => {
     try {
+      console.log('Saving projects to localStorage:', projects);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
     } catch (error) {
       console.error('Error saving projects:', error);
@@ -57,12 +59,16 @@ export function useProjects() {
     const now = new Date().toISOString();
     const newProject: Project = {
       ...projectData,
-      id: crypto.randomUUID(),
+      id: `project-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       createdAt: now,
       updatedAt: now,
     };
-    
-    setProjects(prev => [...prev, newProject]);
+    console.log('Saving new project:', newProject);
+    setProjects(prev => {
+      const updated = [...prev, newProject];
+      console.log('Updated projects list:', updated);
+      return updated;
+    });
     return newProject;
   };
 
